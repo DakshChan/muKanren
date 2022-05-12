@@ -4,23 +4,13 @@
 (define (var? x) (box? x))
 (define (var=? x1 x2) (= (unbox x1) (unbox x2))) ; box makes this make a bit more sense since we don't need to access 0th index
 
-
-; (define (walk u s) ; makes more sense to have s as an actual hashmap, should make way more sense
-; (let ((pr (and (var? u) (assp (lambda (v) (var=? u v)) s)))) ; assp takes a list of pairs, runs the procedure, returns the first matching pair
-   ; and is a bit weird, it returns the last value, and stops if there's a false, so pr is either false or the pair
-; (if pr (walk (cdr pr) s) u))) ; so if we have pair aka sub found, we continue to walk the subs, otherwise we can return current sub
-
 ; repeatedly following subsitutions, to determine if u equals v, under the substitutions given in s
 (define (walk u s)
     (let 
-        ((pr (and (var? u) (hash-ref s u #f)))) ; switched to use a hashmap, makes it easier to read
-        (if pr (walk pr s) u) ; still able to walk; #f is a potential value
+        ((pr (and (var? u) (hash-ref s u u)))) ; switched to use a hashmap, makes it easier to read
+        (if (== pr u) u (walk pr s)) ; still able to walk; #f is a potential value
     )
 )
-
-; (define (ext-s x v s) `((, x . , v) . , s)) ; this is scary syntax, apparently the . just means cons
-    ; so the line means (cons (cons x v) s)
-    ; essentially just adds the pair to the list
 
 ; extends the substitutions
 (define (ext-s x v s) (hash-set s x v))
@@ -140,5 +130,6 @@
 (fives-and-sixes empty-state) ; 5
 ((cdr (fives-and-sixes empty-state))) ; 6
 ((cdr ((cdr (fives-and-sixes empty-state)))))
+((cdr ((cdr ((cdr (fives-and-sixes empty-state)))))))
 
 ;five-and-sixes
